@@ -25,7 +25,7 @@ namespace OnlineBookstore.Application.Repositories
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
-                var sql = "INSERT INTO ShoppingCart (UserId, BookId, Quantity) VALUES (@UserId, @BookId, @Quantity)";
+                var sql = "INSERT INTO shoppingcart (UserId, BookId, Quantity) VALUES (@UserId, @BookId, @Quantity)";
 
                 await connection.ExecuteAsync(sql, cart);
             }
@@ -35,7 +35,7 @@ namespace OnlineBookstore.Application.Repositories
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
-                return await connection.QueryAsync<ShoppingCart>("SELECT * FROM ShoppingCart WHERE User", new { UserId = userId });
+                return await connection.QueryAsync<ShoppingCart>("SELECT * FROM shoppingcart WHERE User", new { UserId = userId });
             }
         }
 
@@ -43,7 +43,7 @@ namespace OnlineBookstore.Application.Repositories
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
-                var sql = "DELETE FROM ShoppingCarts WHERE Id = @Id";
+                var sql = "DELETE FROM shoppingcart WHERE Id = @Id";
                 await connection.ExecuteAsync(sql, new { Id = id });
             }
         }

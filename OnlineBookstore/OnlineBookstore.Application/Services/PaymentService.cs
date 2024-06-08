@@ -52,7 +52,7 @@ namespace OnlineBookstore.Application.Services
                 var history = new PurchaseHistory
                 {
                     UserId = item.UserId,
-                    BookId = item.BookId,
+                    BooksId = item.BookId,
                     PurchaseDate = DateTime.UtcNow
                 };
 

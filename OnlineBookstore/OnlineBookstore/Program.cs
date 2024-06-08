@@ -19,15 +19,16 @@ namespace OnlineBookstore
 
             builder.Services.AddControllers();
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            //builder.Services.AddDbContext<DapperDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddSingleton<DapperDbContext>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IPurchaseHistoryRepository, PurchaseHistoryRepository>();
             builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
-            builder.Services.AddScoped<IBookRepository, BookRepository>();
+            builder.Services.AddScoped<IBooksRepository, BooksRepository>();
 
             builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
-            builder.Services.AddScoped<IBookService, BookService>();
+            builder.Services.AddScoped<IBookservice, Bookservice>();
             builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
 
             builder.Services.AddEndpointsApiExplorer();

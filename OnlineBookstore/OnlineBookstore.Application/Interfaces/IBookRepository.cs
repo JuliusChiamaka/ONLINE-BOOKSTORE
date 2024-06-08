@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace OnlineBookstore.Service.Contract.Base
 {
-   public interface IBookRepository
+   public interface IBooksRepository
     {
         Task<IEnumerable<Book>> GetAllBooksAsync();
-        Task<Book> GetBookByIdAsync(int id);
-        Task AddBookAsync(Book book);
-        Task UpdateBookAsync(Book book);
-        Task DeleteBookAsync(int id);
+        Task<Book> GetBooksByIdAsync(int id);
+        Task AddBooksAsync(Book Books);
+        Task UpdateBooksAsync(Book Books);
+        Task DeleteBooksAsync(int id);
     }
 }

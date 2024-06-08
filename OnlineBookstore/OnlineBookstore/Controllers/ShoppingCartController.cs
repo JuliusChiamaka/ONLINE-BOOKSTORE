@@ -17,13 +17,13 @@ namespace OnlineBookstore.Controllers
             _cartService = cartService;
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("getAllCart/{userId}")]
         public async Task<ActionResult<IEnumerable<ShoppingCart>>> GetCart(int userId)
         {
             return Ok(await _cartService.GetCartByUserIdAsync(userId));
         }
 
-        [HttpPost]
+        [HttpPost("addCart")]
         public async Task<ActionResult> AddToCart([FromBody] ShoppingCart cart)
         {
             try
@@ -41,7 +41,7 @@ namespace OnlineBookstore.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("deleteCart/{id}")]
         public async Task<ActionResult> RemoveFromCart(int id)
         {
             try

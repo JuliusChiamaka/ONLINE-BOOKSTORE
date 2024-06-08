@@ -11,44 +11,44 @@ using System.Threading.Tasks;
 
 namespace OnlineBookstore.Service.Contract.Repository
 {
-    public class BookRepository : IBookRepository
+    public class BooksRepository : IBooksRepository
 
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
 
-        public BookRepository(IConfiguration configuration)
+        public BooksRepository(IConfiguration configuration)
         {
             _configuration = configuration;
             _connectionString = _configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task AddBookAsync(Book book)
+        public async Task AddBooksAsync(Book Books)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
-                var sql = "INSERT INTO Books (Title, Genre, ISBN, Author, PublicationYear) VALUES (@Title, @Genre, @ISBN, @Author, @PublicationYear)";
+                var sql = "INSERT INTO Book (Title, Genre, ISBN, Author, PublicationYear) VALUES (@Title, @Genre, @ISBN, @Author, @PublicationYear)";
 
-                await connection.ExecuteAsync(sql, book);
+                await connection.ExecuteAsync(sql, Books);
             }
         }
 
-        public async Task UpdateBookAsync(Book book)
+        public async Task UpdateBooksAsync(Book Books)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
-                var sql = "UPDATE Books SET Title = @Title, Genre = @Genre, ISBN = @ISBN, Author =@Author, PublicationYear = @PublicationYear WHERE Id = @Id";
+                var sql = "UPDATE Book SET Title = @Title, Genre = @Genre, ISBN = @ISBN, Author =@Author, PublicationYear = @PublicationYear WHERE Id = @Id";
 
-                await connection.ExecuteAsync(sql, book);
+                await connection.ExecuteAsync(sql, Books);
               
             }
         }
 
-        public async Task DeleteBookAsync(int id)
+        public async Task DeleteBooksAsync(int id)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
-                var sql = "DELETE FROM Books WHERE Id = @Id";
+                var sql = "DELETE FROM Book WHERE Id = @Id";
                 await connection.ExecuteAsync(sql, new {Id = id});
             }
         }
@@ -57,15 +57,15 @@ namespace OnlineBookstore.Service.Contract.Repository
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
-                return await connection.QueryAsync<Book>("SELECT * FROM Books");
+                return await connection.QueryAsync<Book>("SELECT * FROM Book");
             }
         }
 
-        public async Task<Book> GetBookByIdAsync(int id)
+        public async Task<Book> GetBooksByIdAsync(int id)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
-                return await connection.QuerySingleOrDefaultAsync<Book>("SELECT * FROM Books WHERE Id = @Id", new { Id = id });
+                return await connection.QuerySingleOrDefaultAsync<Book>("SELECT * FROM Book WHERE Id = @Id", new { Id = id });
             }
         }
 

@@ -4,67 +4,67 @@ using OnlineBookstore.Service.Contract;
 
 namespace OnlineBookstore.Service.Implementation
 {
-    public class BookService : IBookService
+    public class Bookservice : IBookservice
     {
-        private readonly IBookRepository _bookRepository;
+        private readonly IBooksRepository _BooksRepository;
 
-        public BookService(IBookRepository bookRepository)
+        public Bookservice(IBooksRepository BooksRepository)
         {
-            _bookRepository = bookRepository;
+            _BooksRepository = BooksRepository;
         }
 
         public async Task<IEnumerable<Book>> GetAllBooksAsync()
         {
-            return await _bookRepository.GetAllBooksAsync();
+            return await _BooksRepository.GetAllBooksAsync();
         }
 
-        public async Task<Book> GetBookByIdAsync(int id)
+        public async Task<Book> GetBooksByIdAsync(int id)
         {
-            return await _bookRepository.GetBookByIdAsync(id);
+            return await _BooksRepository.GetBooksByIdAsync(id);
         }
 
-        public async Task AddBookAsync(Book book)
+        public async Task AddBooksAsync(Book Books)
         {
-            if (book == null)
+            if (Books == null)
             {
-                throw new ArgumentNullException(nameof(book));
+                throw new ArgumentNullException(nameof(Books));
             }
 
             
-            if (string.IsNullOrEmpty(book.Title))
+            if (string.IsNullOrEmpty(Books.Title))
             {
-                throw new ArgumentException("Book title cannot be empty");
+                throw new ArgumentException("Books title cannot be empty");
             }
 
-            await _bookRepository.AddBookAsync(book);
+            await _BooksRepository.AddBooksAsync(Books);
         }
 
-        public async Task UpdateBookAsync(Book book)
+        public async Task UpdateBooksAsync(Book Books)
         {
-            if (book == null)
+            if (Books == null)
             {
-                throw new ArgumentNullException(nameof(book));
+                throw new ArgumentNullException(nameof(Books));
             }
 
             
-            var existingBook = await _bookRepository.GetBookByIdAsync(book.Id);
-            if (existingBook == null)
+            var existingBooks = await _BooksRepository.GetBooksByIdAsync(Books.Id);
+            if (existingBooks == null)
             {
-                throw new KeyNotFoundException("Book not found");
+                throw new KeyNotFoundException("Books not found");
             }
 
-            await _bookRepository.UpdateBookAsync(book);
+            await _BooksRepository.UpdateBooksAsync(Books);
         }
 
-        public async Task DeleteBookAsync(int id)
+        public async Task DeleteBooksAsync(int id)
         {
-            var existingBook = await _bookRepository.GetBookByIdAsync(id);
-            if (existingBook == null)
+            var existingBooks = await _BooksRepository.GetBooksByIdAsync(id);
+            if (existingBooks == null)
             {
-                throw new KeyNotFoundException("Book not found");
+                throw new KeyNotFoundException("Books not found");
             }
 
-            await _bookRepository.DeleteBookAsync(id);
+            await _BooksRepository.DeleteBooksAsync(id);
         }
     }
 }

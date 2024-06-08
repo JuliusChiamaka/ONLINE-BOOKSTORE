@@ -8,39 +8,39 @@ namespace OnlineBookstore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookController : ControllerBase
+    public class BooksController : ControllerBase
     {
-        private readonly IBookService _bookService;
+        private readonly IBookservice _Bookservice;
 
-        public BookController(IBookService bookService)
+        public BooksController(IBookservice Bookservice)
         {
-            _bookService = bookService;
+            _Bookservice = Bookservice;
         }
 
-        [HttpGet]
+        [HttpGet("getAllBooks")]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            return Ok(await _bookService.GetAllBooksAsync());
+            return Ok(await _Bookservice.GetAllBooksAsync());
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+        [HttpGet("getBook/{id}")]
+        public async Task<ActionResult<Book>> GetBooks(int id)
         {
-            var book = await _bookService.GetBookByIdAsync(id);
-            if (book == null)
+            var Books = await _Bookservice.GetBooksByIdAsync(id);
+            if (Books == null)
             {
                 return NotFound();
             }
-            return Ok(book);
+            return Ok(Books);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> AddBook([FromBody] Book book)
+        [HttpPost("addBook")]
+        public async Task<ActionResult> AddBooks([FromBody] Book Books)
         {
             try
             {
-                await _bookService.AddBookAsync(book);
-                return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
+                await _Bookservice.AddBooksAsync(Books);
+                return CreatedAtAction(nameof(GetBooks), new { id = Books.Id }, Books);
             }
             catch (ArgumentNullException ex)
             {
@@ -52,17 +52,17 @@ namespace OnlineBookstore.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateBook(int id, [FromBody] Book book)
+        [HttpPut("updateBook/{id}")]
+        public async Task<ActionResult> UpdateBooks(int id, [FromBody] Book Books)
         {
-            if (id != book.Id)
+            if (id != Books.Id)
             {
                 return BadRequest();
             }
 
             try
             {
-                await _bookService.UpdateBookAsync(book);
+                await _Bookservice.UpdateBooksAsync(Books);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -75,12 +75,12 @@ namespace OnlineBookstore.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteBook(int id)
+        [HttpDelete("deleteBook/{id}")]
+        public async Task<ActionResult> DeleteBooks(int id)
         {
             try
             {
-                await _bookService.DeleteBookAsync(id);
+                await _Bookservice.DeleteBooksAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

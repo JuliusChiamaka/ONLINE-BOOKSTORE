@@ -10,7 +10,7 @@ using OnlineBookstore.Infrastructure.Data;
 
 namespace OnlineBookstore.Infrastructure.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(DapperDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -22,7 +22,7 @@ namespace OnlineBookstore.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("OnlineBookstore.Domain.Entities.Book", b =>
+            modelBuilder.Entity("OnlineBookstore.Domain.Entities.Books", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +62,7 @@ namespace OnlineBookstore.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BookId")
+                    b.Property<int>("BooksId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("PurchaseDate")
@@ -84,7 +84,7 @@ namespace OnlineBookstore.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BookId")
+                    b.Property<int>("BooksId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Quantity")

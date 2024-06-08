@@ -10,7 +10,7 @@ namespace OnlineBookstore.Domain.Entities
     {
         public int Id { get; set; } 
         public int UserId { get; set; }
-        public int BookId { get; set; }
+        public int BooksId { get; set; }
         public DateTime PurchaseDate { get; set; }
 
     }

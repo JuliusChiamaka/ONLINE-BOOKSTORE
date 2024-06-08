@@ -10,33 +10,33 @@ using System.Threading.Tasks;
 
 namespace OnlineBookstore.Test
 {
-    public class BookServiceTests
+    public class BookserviceTests
     {
-        private readonly Mock<IBookRepository> _mockRepo;
-        private readonly BookService _bookService;
+        private readonly Mock<IBooksRepository> _mockRepo;
+        private readonly Bookservice _Bookservice;
 
-        public BookServiceTests()
+        public BookserviceTests()
         {
-            _mockRepo = new Mock<IBookRepository>();
-            _bookService = new BookService(_mockRepo.Object);
+            _mockRepo = new Mock<IBooksRepository>();
+            _Bookservice = new Bookservice(_mockRepo.Object);
         }
 
         [Fact]
         public async Task GetAllBooksAsync_ReturnsBooks()
         {
-            _mockRepo.Setup(repo => repo.GetAllBooksAsync()).ReturnsAsync(new List<Book> { new Book { Id = 1, Title = "Test Book" } });
+            _mockRepo.Setup(repo => repo.GetAllBooksAsync()).ReturnsAsync(new List<Book> { new Book { Id = 1, Title = "Test Books" } });
 
-            var result = await _bookService.GetAllBooksAsync();
+            var result = await _Bookservice.GetAllBooksAsync();
 
             var resultList = result.ToList();
             Assert.Single(resultList);
-            Assert.Equal("Test Book", resultList[0].Title);
+            Assert.Equal("Test Books", resultList[0].Title);
         }
 
         [Fact]
-        public async Task AddBookAsync_ThrowsArgumentNullException_WhenBookIsNull()
+        public async Task AddBooksAsync_ThrowsArgumentNullException_WhenBooksIsNull()
         {
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _bookService.AddBookAsync(null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _Bookservice.AddBooksAsync(null));
         }
 
        

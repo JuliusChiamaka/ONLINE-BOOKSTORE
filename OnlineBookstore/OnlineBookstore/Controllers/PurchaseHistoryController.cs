@@ -17,7 +17,7 @@ namespace OnlineBookstore.Controllers
             _historyService = historyService;
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("getPurchaseHistory/{userId}")]
         public async Task<ActionResult<IEnumerable<PurchaseHistory>>> GetPurchaseHistory(int userId)
         {
             try
