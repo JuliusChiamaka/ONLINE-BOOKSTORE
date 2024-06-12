@@ -1,70 +1,58 @@
 ﻿using OnlineBookstore.Domain.Entities;
-using OnlineBookstore.Service.Contract.Base;
 using OnlineBookstore.Service.Contract;
+using AutoMapper;
+using OnlineBookstore.Domain.Dtos.Request;
+using OnlineBookstore.Domain.Dtos.Response;
+using OnlineBookstore.Application.Interfaces.Repository;
+using OnlineBookstore.Application.Interfaces.Service;
 
 namespace OnlineBookstore.Service.Implementation
 {
-    public class Bookservice : IBookservice
+    public class BookService : IBookService
     {
-        private readonly IBooksRepository _BooksRepository;
+        private readonly IBookRepository _bookRepository;
+        private readonly IMapper _mapper;
 
-        public Bookservice(IBooksRepository BooksRepository)
+        public BookService(IBookRepository bookRepository, IMapper mapper)
         {
-            _BooksRepository = BooksRepository;
+            _bookRepository = bookRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Book>> GetAllBooksAsync()
+        public async Task<IEnumerable<BookResponse>> GetAllBooksAsync()
         {
-            return await _BooksRepository.GetAllBooksAsync();
+            var books = await _bookRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<BookResponse>>(books);
         }
 
-        public async Task<Book> GetBooksByIdAsync(int id)
+        public async Task<BookResponse> GetBookByIdAsync(int id)
         {
-            return await _BooksRepository.GetBooksByIdAsync(id);
+            var book = await _bookRepository.GetByIdAsync(id);
+            return _mapper.Map<BookResponse>(book);
         }
 
-        public async Task AddBooksAsync(Book Books)
+        public async Task AddBookAsync(AddBookRequest request)
         {
-            if (Books == null)
-            {
-                throw new ArgumentNullException(nameof(Books));
-            }
-
-            
-            if (string.IsNullOrEmpty(Books.Title))
-            {
-                throw new ArgumentException("Books title cannot be empty");
-            }
-
-            await _BooksRepository.AddBooksAsync(Books);
+            var book = _mapper.Map<Book>(request);
+            await _bookRepository.AddAsync(book);
         }
 
-        public async Task UpdateBooksAsync(Book Books)
+        public async Task UpdateBookAsync(int id, UpdateBookRequest request)
         {
-            if (Books == null)
-            {
-                throw new ArgumentNullException(nameof(Books));
-            }
-
-            
-            var existingBooks = await _BooksRepository.GetBooksByIdAsync(Books.Id);
-            if (existingBooks == null)
-            {
-                throw new KeyNotFoundException("Books not found");
-            }
-
-            await _BooksRepository.UpdateBooksAsync(Books);
+            var book = _mapper.Map<Book>(request);
+            book.Id = id;
+            await _bookRepository.UpdateAsync(book);
         }
 
-        public async Task DeleteBooksAsync(int id)
+        public async Task DeleteBookAsync(int id)
         {
-            var existingBooks = await _BooksRepository.GetBooksByIdAsync(id);
-            if (existingBooks == null)
-            {
-                throw new KeyNotFoundException("Books not found");
-            }
+            await _bookRepository.DeleteAsync(id);
+        }
 
-            await _BooksRepository.DeleteBooksAsync(id);
+        public async Task<IEnumerable<BookResponse>> SearchBooksAsync(string title, string author, int? year, string genre)
+        {
+            var books = await _bookRepository.SearchAsync(title, author, year, genre);
+            return _mapper.Map<IEnumerable<BookResponse>>(books);
         }
     }
 }

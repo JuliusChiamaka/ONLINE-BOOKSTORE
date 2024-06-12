@@ -1,33 +1,44 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using OnlineBookstore.Application.Interfaces;
-using OnlineBookstore.Domain.Entities;
-using OnlineBookstore.Service.Contract.Base;
+﻿using Microsoft.AspNetCore.Mvc;
+using OnlineBookstore.Application.Interfaces.Service;
+using OnlineBookstore.Domain.Dtos.Request;
 
 namespace OnlineBookstore.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class PurchaseHistoryController : ControllerBase
     {
-        private readonly IPurchaseHistoryService _historyService;
+        private readonly IPurchaseHistoryService _purchaseHistoryService;
 
-        public PurchaseHistoryController(IPurchaseHistoryService historyService)
+        public PurchaseHistoryController(IPurchaseHistoryService purchaseHistoryService)
         {
-            _historyService = historyService;
+            _purchaseHistoryService = purchaseHistoryService;
         }
 
-        [HttpGet("getPurchaseHistory/{userId}")]
-        public async Task<ActionResult<IEnumerable<PurchaseHistory>>> GetPurchaseHistory(int userId)
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetPurchaseHistoryByUserId(int userId)
         {
-            try
+            var purchaseHistory = await _purchaseHistoryService.GetPurchaseHistoryByUserIdAsync(userId);
+            return Ok(purchaseHistory);
+        }
+
+        [HttpGet("details/{id}")]
+        public async Task<IActionResult> GetPurchaseHistoryWithItems(int id)
+        {
+            var purchaseHistory = await _purchaseHistoryService.GetPurchaseHistoryWithItemsAsync(id);
+            if (purchaseHistory == null)
             {
-                return Ok(await _historyService.GetPurchaseHistoryByUserIdAsync(userId));
+                return NotFound();
             }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(purchaseHistory);
+        }
+
+        [HttpPost("addPurchaseHistory")]
+        public async Task<IActionResult> AddPurchaseHistory(AddPurchaseHistoryRequest request)
+        {
+            await _purchaseHistoryService.AddPurchaseHistoryAsync(request);
+            return Ok(); // Return Ok without referencing request.Id
         }
     }
+
 }

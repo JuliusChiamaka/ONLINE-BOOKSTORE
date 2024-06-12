@@ -1,7 +1,10 @@
-﻿using Moq;
+﻿using AutoMapper;
+using Moq;
+using OnlineBookstore.Application.Interfaces.Repository;
 using OnlineBookstore.Application.Services;
+using OnlineBookstore.Domain.Dtos.Request;
 using OnlineBookstore.Domain.Entities;
-using OnlineBookstore.Service.Contract.Base;
+using OnlineBookstore.Infrastructure.Configs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,34 +15,76 @@ namespace OnlineBookstore.Test
 {
     public class PurchaseHistoryServiceTests
     {
-        private readonly Mock<IPurchaseHistoryRepository> _mockRepo;
-        private readonly PurchaseHistoryService _historyService;
+        private readonly Mock<IPurchaseHistoryRepository> _mockPurchaseHistoryRepository;
+        private readonly IMapper _mapper;
+        private readonly PurchaseHistoryService _purchaseHistoryService;
 
         public PurchaseHistoryServiceTests()
         {
-            _mockRepo = new Mock<IPurchaseHistoryRepository>();
-            _historyService = new PurchaseHistoryService(_mockRepo.Object);
+            _mockPurchaseHistoryRepository = new Mock<IPurchaseHistoryRepository>();
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<MappingProfile>();
+            });
+            _mapper = config.CreateMapper();
+
+            _purchaseHistoryService = new PurchaseHistoryService(_mockPurchaseHistoryRepository.Object, _mapper);
         }
 
         [Fact]
-        public async Task GetPurchaseHistoryByUserIdAsync_ReturnsHistory()
+        public async Task GetPurchaseHistoryByUserIdAsync_ShouldReturnPurchaseHistory()
         {
-            _mockRepo.Setup(repo => repo.GetPurchaseHistoryByUserIdAsync(1)).ReturnsAsync(new List<PurchaseHistory> { new PurchaseHistory { UserId = 1 } });
+            // Arrange
+            var userId = 1;
+            var purchaseHistories = TestData.GetPurchaseHistories();
+            _mockPurchaseHistoryRepository.Setup(repo => repo.GetPurchaseHistoryByUserIdAsync(userId)).ReturnsAsync(purchaseHistories);
 
-            var result = await _historyService.GetPurchaseHistoryByUserIdAsync(1);
+            // Act
+            var result = await _purchaseHistoryService.GetPurchaseHistoryByUserIdAsync(userId);
 
-            var resultList = result.ToList(); // Convert to list for indexing
-
-            Assert.Single(resultList);
-            Assert.Equal(1, resultList[0].UserId);
+            // Assert
+            Assert.Equal(purchaseHistories.Count, result.Count());
         }
 
         [Fact]
-        public async Task GetPurchaseHistoryByUserIdAsync_ThrowsArgumentException_WhenUserIdIsInvalid()
+        public async Task GetPurchaseHistoryWithItemsAsync_ShouldReturnPurchaseHistoryWithItems()
         {
-            await Assert.ThrowsAsync<ArgumentException>(() => _historyService.GetPurchaseHistoryByUserIdAsync(0));
+            // Arrange
+            var purchaseHistory = TestData.GetPurchaseHistories().First();
+            _mockPurchaseHistoryRepository.Setup(repo => repo.GetPurchaseHistoryWithItemsAsync(purchaseHistory.Id)).ReturnsAsync(purchaseHistory);
+
+            // Act
+            var result = await _purchaseHistoryService.GetPurchaseHistoryWithItemsAsync(purchaseHistory.Id);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(purchaseHistory.Id, result.Id);
         }
 
-        // Other tests...
+        [Fact]
+        public async Task AddPurchaseHistoryAsync_ShouldAddPurchaseHistory()
+        {
+            // Arrange
+            var request = new AddPurchaseHistoryRequest
+            {
+                UserId = 1,
+                TotalAmount = 50.0m,
+                Items = new List<AddPurchaseHistoryItemRequest>
+            {
+                new AddPurchaseHistoryItemRequest { BookId = 1, Quantity = 1, Price = 50.0m }
+            }
+            };
+            var purchaseHistory = _mapper.Map<PurchaseHistory>(request);
+
+            _mockPurchaseHistoryRepository.Setup(repo => repo.AddAsync(It.IsAny<PurchaseHistory>())).Returns(Task.CompletedTask);
+
+            // Act
+            await _purchaseHistoryService.AddPurchaseHistoryAsync(request);
+
+            // Assert
+            _mockPurchaseHistoryRepository.Verify(repo => repo.AddAsync(It.Is<PurchaseHistory>(ph => ph.UserId == request.UserId && ph.TotalAmount == request.TotalAmount)), Times.Once);
+        }
     }
+
 }

@@ -1,8 +1,10 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
+using OnlineBookstore.Application.Interfaces.Repository;
+using OnlineBookstore.Application.Repositories.Base;
 using OnlineBookstore.Domain.Entities;
-using OnlineBookstore.Service.Contract.Base;
+using OnlineBookstore.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,63 +13,31 @@ using System.Threading.Tasks;
 
 namespace OnlineBookstore.Service.Contract.Repository
 {
-    public class BooksRepository : IBooksRepository
-
+    public class BookRepository : GenericRepository<Book>, IBookRepository
     {
-        private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
+        private readonly IDapperContext _context;
 
-        public BooksRepository(IConfiguration configuration)
+        public BookRepository(IDapperContext context) : base(context)
         {
-            _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("DefaultConnection");
+            _context = context;
         }
 
-        public async Task AddBooksAsync(Book Books)
+        public async Task<IEnumerable<Book>> SearchAsync(string title, string author, int? year, string genre)
         {
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (var connection = _context.CreateConnection())
             {
-                var sql = "INSERT INTO Book (Title, Genre, ISBN, Author, PublicationYear) VALUES (@Title, @Genre, @ISBN, @Author, @PublicationYear)";
+                var query = "SELECT * FROM BOOKS WHERE 1=1";
+                if (!string.IsNullOrEmpty(title))
+                    query += " AND Title LIKE @Title";
+                if (!string.IsNullOrEmpty(author))
+                    query += " AND Author LIKE @Author";
+                if (year.HasValue)
+                    query += " AND Year = @Year";
+                if (!string.IsNullOrEmpty(genre))
+                    query += " AND Genre LIKE @Genre";
 
-                await connection.ExecuteAsync(sql, Books);
+                return await connection.QueryAsync<Book>(query, new { Title = $"%{title}%", Author = $"%{author}%", Year = year, Genre = $"%{genre}%" });
             }
         }
-
-        public async Task UpdateBooksAsync(Book Books)
-        {
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                var sql = "UPDATE Book SET Title = @Title, Genre = @Genre, ISBN = @ISBN, Author =@Author, PublicationYear = @PublicationYear WHERE Id = @Id";
-
-                await connection.ExecuteAsync(sql, Books);
-              
-            }
-        }
-
-        public async Task DeleteBooksAsync(int id)
-        {
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                var sql = "DELETE FROM Book WHERE Id = @Id";
-                await connection.ExecuteAsync(sql, new {Id = id});
-            }
-        }
-
-        public async Task<IEnumerable<Book>> GetAllBooksAsync()
-        {
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                return await connection.QueryAsync<Book>("SELECT * FROM Book");
-            }
-        }
-
-        public async Task<Book> GetBooksByIdAsync(int id)
-        {
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                return await connection.QuerySingleOrDefaultAsync<Book>("SELECT * FROM Book WHERE Id = @Id", new { Id = id });
-            }
-        }
-
     }
 }

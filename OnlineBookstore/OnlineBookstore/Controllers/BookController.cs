@@ -1,92 +1,67 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using OnlineBookstore.Domain.Entities;
-using OnlineBookstore.Service.Contract;
-using OnlineBookstore.Service.Contract.Base;
+﻿using Microsoft.AspNetCore.Mvc;
+using OnlineBookstore.Application.Interfaces.Service;
+using OnlineBookstore.Domain.Dtos.Request;
+using OnlineBookstore.Service.Implementation;
 
 namespace OnlineBookstore.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class BooksController : ControllerBase
+    [Route("api/[controller]")]
+    public class BookController : ControllerBase
     {
-        private readonly IBookservice _Bookservice;
+        private readonly IBookService _bookService;
 
-        public BooksController(IBookservice Bookservice)
+        public BookController(IBookService bookService)
         {
-            _Bookservice = Bookservice;
+            _bookService = bookService;
         }
 
-        [HttpGet("getAllBooks")]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        [HttpGet]
+        public async Task<IActionResult> GetAllBooks()
         {
-            return Ok(await _Bookservice.GetAllBooksAsync());
+            var books = await _bookService.GetAllBooksAsync();
+            return Ok(books);
         }
 
         [HttpGet("getBook/{id}")]
-        public async Task<ActionResult<Book>> GetBooks(int id)
+        public async Task<IActionResult> GetBookById(int id)
         {
-            var Books = await _Bookservice.GetBooksByIdAsync(id);
-            if (Books == null)
+            var book = await _bookService.GetBookByIdAsync(id);
+            if (book == null)
             {
                 return NotFound();
             }
-            return Ok(Books);
+            return Ok(book);
         }
 
         [HttpPost("addBook")]
-        public async Task<ActionResult> AddBooks([FromBody] Book Books)
+        public async Task<IActionResult> AddBook(AddBookRequest request)
         {
-            try
-            {
-                await _Bookservice.AddBooksAsync(Books);
-                return CreatedAtAction(nameof(GetBooks), new { id = Books.Id }, Books);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _bookService.AddBookAsync(request);
+            return Ok(); 
         }
 
-        [HttpPut("updateBook/{id}")]
-        public async Task<ActionResult> UpdateBooks(int id, [FromBody] Book Books)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateBook(int id, UpdateBookRequest request)
         {
-            if (id != Books.Id)
-            {
-                return BadRequest();
-            }
-
-            try
-            {
-                await _Bookservice.UpdateBooksAsync(Books);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _bookService.UpdateBookAsync(id, request);
+            return NoContent();
         }
 
         [HttpDelete("deleteBook/{id}")]
-        public async Task<ActionResult> DeleteBooks(int id)
+        public async Task<IActionResult> DeleteBook(int id)
         {
-            try
-            {
-                await _Bookservice.DeleteBooksAsync(id);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            await _bookService.DeleteBookAsync(id);
+            return NoContent();
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchBooks([FromQuery] string title, [FromQuery] string author, [FromQuery] int? year, [FromQuery] string genre)
+        {
+            var books = await _bookService.SearchBooksAsync(title, author, year, genre);
+            return Ok(books);
         }
     }
+
+
 }

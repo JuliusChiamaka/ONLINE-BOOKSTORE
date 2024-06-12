@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OnlineBookstore.Infrastructure.Data
 {
-    public interface IDbContext
+    public interface IDapperContext
     {
         IDbConnection CreateConnection();
     }

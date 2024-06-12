@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using OnlineBookstore.Application.Interfaces;
+using OnlineBookstore.Application.Interfaces.Repository;
+using OnlineBookstore.Application.Interfaces.Service;
 using OnlineBookstore.Application.Repositories;
 using OnlineBookstore.Application.Services;
+using OnlineBookstore.Infrastructure.Configs;
 using OnlineBookstore.Infrastructure.Data;
 using OnlineBookstore.Service.Contract;
-using OnlineBookstore.Service.Contract.Base;
 using OnlineBookstore.Service.Contract.Repository;
 using OnlineBookstore.Service.Implementation;
 
@@ -20,15 +21,19 @@ namespace OnlineBookstore
             builder.Services.AddControllers();
 
             //builder.Services.AddDbContext<DapperDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-            builder.Services.AddSingleton<DapperDbContext>();
-            builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+            builder.Services.AddScoped<IDapperContext, DapperDbContext>();
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IBookRepository, BookRepository>();
+            builder.Services.AddScoped<ICartRepository, CartRepository>();
             builder.Services.AddScoped<IPurchaseHistoryRepository, PurchaseHistoryRepository>();
-            builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
-            builder.Services.AddScoped<IBooksRepository, BooksRepository>();
 
-            builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
-            builder.Services.AddScoped<IBookservice, Bookservice>();
+            builder.Services.AddScoped<ICartService, CartService>();
+            builder.Services.AddScoped<IBookService, BookService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
 
             builder.Services.AddEndpointsApiExplorer();

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineBookstore.Domain.Entities
+namespace OnlineBookstore.Domain.Dtos.Request
 {
-    public class Book
+    public class AddBookRequest
     {
-        public int Id { get; set; }
         public string Title { get; set; }
         public string Genre { get; set; }
         public string ISBN { get; set; }
@@ -16,11 +15,5 @@ namespace OnlineBookstore.Domain.Entities
         public int PublicationYear { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-
-        // Navigation property
-        //public List<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
-
 }

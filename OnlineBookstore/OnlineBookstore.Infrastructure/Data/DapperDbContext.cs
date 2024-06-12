@@ -1,13 +1,14 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using OnlineBookstore.Domain.Entities;
 using System.Data;
 using System.Data.SqlClient;
 
 namespace OnlineBookstore.Infrastructure.Data
 {
-    public class DapperDbContext
+    public class DapperDbContext : IDapperContext
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
@@ -20,7 +21,7 @@ namespace OnlineBookstore.Infrastructure.Data
 
         public IDbConnection CreateConnection()
         {
-            return new SqlConnection(_connectionString);
+            return new NpgsqlConnection(_connectionString);
         }
     }
 }

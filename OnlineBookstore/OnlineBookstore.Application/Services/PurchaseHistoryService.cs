@@ -1,31 +1,46 @@
-﻿using OnlineBookstore.Application.Interfaces;
+﻿using AutoMapper;
+using OnlineBookstore.Application.Interfaces;
+using OnlineBookstore.Application.Interfaces.Repository;
+using OnlineBookstore.Application.Interfaces.Service;
+using OnlineBookstore.Domain.Dtos.Request;
+using OnlineBookstore.Domain.Dtos.Response;
 using OnlineBookstore.Domain.Entities;
-using OnlineBookstore.Service.Contract.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineBookstore.Application.Services
+namespace OnlineBookstore.Application.Services 
 {
     public class PurchaseHistoryService : IPurchaseHistoryService
     {
-        private readonly IPurchaseHistoryRepository _historyRepository;
+        private readonly IPurchaseHistoryRepository _purchaseHistoryRepository;
+        private readonly IMapper _mapper; 
 
-        public PurchaseHistoryService(IPurchaseHistoryRepository historyRepository)
+        public PurchaseHistoryService(IPurchaseHistoryRepository purchaseHistoryRepository, IMapper mapper)
         {
-            _historyRepository = historyRepository;
+            _purchaseHistoryRepository = purchaseHistoryRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<PurchaseHistory>> GetPurchaseHistoryByUserIdAsync(int userId)
+        public async Task<IEnumerable<PurchaseHistoryResponse>> GetPurchaseHistoryByUserIdAsync(int userId)
         {
-            if (userId <= 0)
-            {
-                throw new ArgumentException("Invalid user ID");
-            }
+            var purchaseHistories = await _purchaseHistoryRepository.GetPurchaseHistoryByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<PurchaseHistoryResponse>>(purchaseHistories);
+        }
 
-            return await _historyRepository.GetPurchaseHistoryByUserIdAsync(userId);
+        public async Task<PurchaseHistoryResponse> GetPurchaseHistoryWithItemsAsync(int id)
+        {
+            var purchaseHistoryDto = await _purchaseHistoryRepository.GetPurchaseHistoryWithItemsAsync(id);
+            return _mapper.Map<PurchaseHistoryResponse>(purchaseHistoryDto);
+        }
+
+        public async Task AddPurchaseHistoryAsync(AddPurchaseHistoryRequest request)
+        {
+            var purchaseHistory = _mapper.Map<PurchaseHistory>(request);
+            await _purchaseHistoryRepository.AddAsync(purchaseHistory);
         }
     }
+
 }
